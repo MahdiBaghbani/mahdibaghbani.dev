@@ -205,6 +205,7 @@ socials = [
     { name = "github", url = "https://github.com/MahdiBaghbani", icon = "github" },
     { name = "mastodon", url = "https://mastodon.azadehafzar.io/@mahdibaghbani", icon = "mastodon" },
     { name = "x", url = "https://x.com/baghbani1", icon = "x" },
+    { name = "matrix", url = "https://matrix.to/#/@mahdi-baghbani:matrix.azadehafzar.io", icon = "matrix" },
 ]
 
 # Extra menu to show on the footer, below socials section.
