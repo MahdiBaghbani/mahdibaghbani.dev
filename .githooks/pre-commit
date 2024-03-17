@@ -255,11 +255,6 @@ echo $file
 
 done
 
-# Use `social-cards-zola.sh` to create/update the social media card for Markdown files.
-# See https://osc.garden/blog/automating-social-media-cards-zola/ for context.
-# Use parallel to create the social media cards in parallel and commit them.
-echo "$modified_md_files" | parallel -j 8 generate_and_commit_card
-
 ######################################################################
 # Run ./scripts/subset-font.sh if config.toml has been modified.     #
 # https://welpo.github.io/tabi/blog/custom-font-subset/              #
@@ -279,3 +274,8 @@ if git diff --cached --name-only | grep -q "config.toml"; then
     # Add the generated subset.css file to the commit.
     git add static/custom_subset.css
 fi
+
+# Use `social-cards-zola.sh` to create/update the social media card for Markdown files.
+# See https://osc.garden/blog/automating-social-media-cards-zola/ for context.
+# Use parallel to create the social media cards in parallel and commit them.
+if [ -z "$modified_md_files" ]; then echo "no md files has been changed."; else echo "$modified_md_files" | parallel -j 8 generate_and_commit_card; fi
