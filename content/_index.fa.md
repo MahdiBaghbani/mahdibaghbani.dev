@@ -8,7 +8,7 @@ template = "section.html"
 header = {title = "سلام! من مهدی هستم :-)", img = "img/author-image.webp", img_alt = "مهدی باغبانی، نویسنده این وبلاگ" }
 section_path = "blog/_index.fa.md"
 max_posts = 4
-social_media_card = "social_cards/fa.jpg"
+social_media_card = "img/social_cards/fa.webp"
 +++
 
-فعلا خبری نیست!
+فعلا خبری نیست! شاید در آنیده بشه
