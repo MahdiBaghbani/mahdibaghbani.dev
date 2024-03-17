@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -x
-
 #################################################################################
 # This script is run by git before a commit is made.                            #
 # To use it, copy it to .githooks/pre-commit and make it executable.            #
