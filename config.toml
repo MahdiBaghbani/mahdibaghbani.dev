@@ -152,7 +152,7 @@ long_date_format = "%d %B %Y"
 short_date_format = ""
 
 # Custom separator used in title tag and posts metadata (between date, time to read, and tags).
-separator = "•"
+separator = ">•<"
 
 # Use a shorter layout for All tags listing.
 # Default: tag_name – n post[s]
@@ -164,7 +164,7 @@ compact_tags = false
 invert_title_order = false
 
 # Full path after the base URL required. So if you were to place it in "static" it would be "/favicon.png"
-favicon = "img/seedling.png"
+favicon = ""
 
 # Add an emoji here to use it as favicon.
 # Compatibility: https://caniuse.com/link-icon-svg
@@ -231,9 +231,9 @@ copyright = "$TITLE © $CURRENT_YEAR $AUTHOR $SEPARATOR Unless otherwise noted, 
 # This configuration (along with the right webserver settings) gets an A+ in Mozilla's Observatory: https://observatory.mozilla.org
 allowed_domains = [
     { directive = "font-src", domains = ["'self'", "data:"] },
-    { directive = "img-src", domains = ["'self'", "https://*", "data:"] },
+    { directive = "img-src", domains = ["'self'", "data:"] },
     { directive = "script-src", domains = ["'self'"] },
     { directive = "style-src", domains = ["'self'"] },
-    { directive = "frame-src", domains = ["https://www.youtube-nocookie.com"] },
+    { directive = "frame-src", domains = ["'self'"] },
 ]
 
