@@ -5,7 +5,7 @@ author = "Mahdi Baghbani"
 generate_feed = true
 compile_sass = true
 minify_html = true
-build_search_index = true
+build_search_index = false
 
 # Select theme.
 theme = "erfan"
@@ -48,6 +48,15 @@ skip_prefixes = [
 skip_anchor_prefixes = [
     "https://github.com/",
 ]
+
+[languages.fa]
+title = "~/مهدی-باغبانی"
+description = "مهندس دوآپس"
+generate_feed = true
+compile_sass = true
+minify_html = true
+taxonomies = [{name = "tags", feed = true}]
+build_search_index = false
 
 [extra]
 # Check out the documentation (or the comments below) to learn how to customise tabi:
@@ -180,7 +189,7 @@ favicon_emoji = "👨‍💻"
 # Can be set at page or section levels, following the hierarchy: page > section > config. See: https://welpo.github.io/tabi/blog/mastering-tabi-settings/#settings-hierarchy
 # Learn how to create these images in batch and automatically:
 # https://osc.garden/blog/automating-social-media-cards-zola/
-social_media_card = "social_cards/index.webp"
+social_media_card = "social_cards/index.jpg"
 
 menu = [
     { name = "blog", url = "blog", trailing_slash = true },
