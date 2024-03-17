@@ -42,6 +42,12 @@ smart_punctuation = true
 
 [link_checker]
 internal_level = "warn"
+skip_prefixes = [
+    "https://www.vultr.com/",
+]
+skip_anchor_prefixes = [
+    "https://github.com/",
+]
 
 [extra]
 # Check out the documentation (or the comments below) to learn how to customise tabi:
@@ -152,7 +158,7 @@ long_date_format = "%d %B %Y"
 short_date_format = ""
 
 # Custom separator used in title tag and posts metadata (between date, time to read, and tags).
-separator = ">•<"
+separator = "•••"
 
 # Use a shorter layout for All tags listing.
 # Default: tag_name – n post[s]
@@ -174,7 +180,7 @@ favicon_emoji = "👨‍💻"
 # Can be set at page or section levels, following the hierarchy: page > section > config. See: https://welpo.github.io/tabi/blog/mastering-tabi-settings/#settings-hierarchy
 # Learn how to create these images in batch and automatically:
 # https://osc.garden/blog/automating-social-media-cards-zola/
-social_media_card = "social_cards/index.jpg"
+social_media_card = "social_cards/index.webp"
 
 menu = [
     { name = "blog", url = "blog", trailing_slash = true },
@@ -237,3 +243,12 @@ allowed_domains = [
     { directive = "frame-src", domains = ["'self'"] },
 ]
 
+# Enable the CSP directives configured (or default).
+# Can be set at page or section levels, following the hierarchy: page > section > config. See: https://welpo.github.io/tabi/blog/mastering-tabi-settings/#settings-hierarchy
+enable_csp = true
+
+# Custom subset of characters for the header.
+# If set to true, the `static/custom_subset.css` file will be loaded first.
+# This avoids a flashing text issue in Firefox.
+# Please see https://welpo.github.io/tabi/blog/custom-font-subset/ to learn how to create this file.
+custom_subset = true
