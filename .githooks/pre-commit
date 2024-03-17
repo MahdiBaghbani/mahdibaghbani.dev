@@ -18,10 +18,6 @@
 # - a minified JS file that isn't as small as it can be                         #
 # - a config.toml and theme.toml with different amounts of lines in [extra]     #
 #################################################################################
-# Check if the script is being run from the root of the repo.
-if [[ ! $(git rev-parse --show-toplevel) == $(pwd) ]]; then
-    error_exit "This script must be run from the root of the repo."
-fi
 
 # Function to exit the script with an error message.
 function error_exit() {
@@ -39,7 +35,7 @@ function extract_date() {
 # Function to check if the .md file is a draft.
 function is_draft() {
     local file="$1"
-    grep -q "draft = true" "$file"
+    awk '/^\+\+\+$/,/^\+\+\+$/ { if(/draft = true/) exit 0 } END { exit 1 }' "$file"
 }
 
 # Check if the file contains "TODO".
@@ -74,16 +70,16 @@ function has_body_changes() {
 # Function to update the social media card for a post or section.
 function generate_and_commit_card {
     local file=$1
-    social_media_card=$(social-cards-zola -o static/img/social_cards -b http://127.0.0.1:1025 -u -p -i "$file") || {
+    social_media_card=$(./scripts/social-cards-zola.sh -o static/img/social_cards -b http://127.0.0.1:1111 -u -p -i "$file") || {
         echo "Failed to update social media card for $file"
         exit 1
     }
-    
+
     git add "$social_media_card" || {
         echo "Failed to add social media card $social_media_card"
         exit 1
     }
-    
+
     git add "$file" || {
         echo "Failed to add $file"
         exit 1
@@ -92,16 +88,120 @@ function generate_and_commit_card {
 
 export -f generate_and_commit_card
 
+function has_minified_version() {
+    local file="$1"
+    local extension="${file##*.}"
+    local minified_file="${file%.*}.min.$extension"
+    [ -f "$minified_file" ]
+}
+
+function is_minified() {
+    local file="$1"
+
+    # Check if terser and uglifyjs are installed.
+    if ! command -v terser &> /dev/null || ! command -v uglifyjs &> /dev/null; then
+        echo "Either terser or uglifyjs is not installed. Skipping minification check."
+        return 0
+    fi
+
+    # Original file size.
+    local original_size=$(wc -c < "$file")
+
+    # File size after compression with terser.
+    local terser_size=$(terser --compress --mangle -- "$file" | wc -c)
+
+    # File size after compression with uglifyjs.
+    local uglifyjs_size=$(uglifyjs --compress --mangle -- "$file" | wc -c)
+
+    # Check if the file is already as small as or smaller than both minified versions.
+    if (( original_size <= terser_size && original_size <= uglifyjs_size )); then
+        return 0
+    fi
+
+    # If the file isn't as small as it can be, suggest the better compressor in the error message
+    if (( terser_size < uglifyjs_size )); then
+        error_exit "Minified JS file $file isn't as small as it can be! Try using terser for better compression."
+    else
+        error_exit "Minified JS file $file isn't as small as it can be! Try using uglifyjs for better compression."
+    fi
+}
+
+# Check if the script is being run from the root of the repo.
+if [[ ! $(git rev-parse --show-toplevel) == $(pwd) ]]; then
+    error_exit "This script must be run from the root of the repo."
+fi
+
+# Check if oxipng is installed.
+png_compressor=""
+if command -v oxipng &> /dev/null; then
+    png_compressor="oxipng -o max"
+elif command -v optipng &> /dev/null; then
+    png_compressor="optipng -o 7"
+fi
+
+##################################################################
+# Compress PNG files with either oxipng or optipng if available. #
+# Update the "updated" field in the front matter of .md files.   #
+#          https://osc.garden/blog/zola-date-git-hook/           #
+# Ensure the [extra] section from config.toml and theme.toml     #
+# have the same amount of lines.                                 #
+# Ensure JavaScript files are minified.                          #
+##################################################################
+
+# Get the newly added and modified files.
+all_changed_files=$(git diff --cached --name-only --diff-filter=AM)
+
+script_name=$(basename "$0")
+# Loop through all newly added or modified files.
+for file in $all_changed_files; do
+    file_name=$(basename "$file")
+
+    # Ignore this script and the changelog.
+    if [[ "$file_name" == "$script_name" ]] || [[ "$file_name" == "CHANGELOG.md" ]]; then
+        continue
+    fi
+
+    # If the file is a PNG and png_compressor is set, compress it and add it to the commit.
+    if [[ "$file" == *.png ]] && [[ -n "$png_compressor" ]]; then
+        $png_compressor "$file" || error_exit "Failed to compress PNG file $file"
+        git add --force "$file" || error_exit "Failed to add compressed PNG file $file"
+        continue
+    fi
+
+    # If the file contains "TODO", abort the commit.
+    if contains_todo "$file"; then
+        error_exit "File $file contains TODO! Remove or complete the TODO before committing."
+    fi
+
+    # If the file is a JS file and it doesn't have a minified version, abort the commit.
+    if [[ "$file" == *.js ]] && [[ "$file" != *.min.js ]] && ! has_minified_version "$file"; then
+        error_exit "JS file $file doesn't have a minified version!"
+    fi
+
+    # If the file is a minified JS file and it isn't as small as it can be, abort the commit.
+    # Error message shows which minifier is best for the file.
+    if [[ "$file" == *.min.js ]]; then
+        is_minified "$file"
+    fi
+done
+
 # Get the modified .md to update the "updated" field in the front matter.
-modified_files=$(git diff --cached --name-only --diff-filter=M | grep -E '\.md$' | grep -v '_index.md$')
+modified_md_files=$(git diff --cached --name-only --diff-filter=M | grep -E '\.md$' | grep -v '_index.md$')
 
 # Loop through each modified .md file.
-for file in $modified_files; do
+for file in $modified_md_files; do
+echo $file
+    # If the file is an .md file and it's a draft, abort the commit.
+    if is_draft "$file"; then
+        error_exit "Draft file $file is being committed!"
+    fi
+
     # If changes are only in the front matter, skip the file.
     if ! has_body_changes "$file"; then
         continue
     fi
 
+    # Modify the "updated" date, if necessary.
     # Get the last modified date from the filesystem.
     last_modified_date=$(date -r "$file" +'%Y-%m-%d')
 
@@ -132,55 +232,7 @@ for file in $modified_files; do
 
     # Stage the changes.
     git add "$file"
-done
 
-# Check if oxipng is installed.
-png_compressor=""
-if command -v oxipng &> /dev/null; then
-    png_compressor="oxipng -o max"
-elif command -v optipng &> /dev/null; then
-    png_compressor="optipng -o 7"
-fi
-
-##################################################################
-# Compress PNG files with either oxipng or optipng if available. #
-# Update the "updated" field in the front matter of .md files.   #
-#          https://osc.garden/blog/zola-date-git-hook/           #
-# Interrupt the commit if a draft .md file is being committed.   #
-# Interrupt the commit if a file with "TODO" is being committed. #
-# Create/update the social media card for posts and sections.    #
-# For more info about the social media cards part, see:          #
-#   https://osc.garden/blog/automating-social-media-cards-zola   #
-##################################################################
-
-# Get the newly added and modified files.
-all_changed_files=$(git diff --cached --name-only)
-
-# Loop through each newly added or modified .md or .png file for PNG optimization and draft checking.
-for file in $all_changed_files; do
-    # Ignore this script.
-    if [[ "$file" == "$0" ]]; then
-        continue
-    fi
-
-    # If the file is a PNG and png_compressor is set, compress it and add it to the commit.
-    if [[ "$file" == *.png ]] && [[ -n "$png_compressor" ]]; then
-        $png_compressor "$file" || error_exit "Failed to compress PNG file $file"
-        git add "$file" || error_exit "Failed to add compressed PNG file $file"
-        continue
-    fi
-
-    # If the file contains "TODO", abort the commit (unless it's this script).
-    if contains_todo "$file"; then
-        error_exit "File $file contains TODO! Remove or complete the TODO before committing."
-    fi
-
-    # If the file is an .md file and it's a draft, abort the commit.
-    if [[ "$file" == *.md ]]; then
-        if is_draft "$file"; then
-            error_exit "Draft file $file is being committed!"
-        fi
-    fi
 done
 
 ######################################################################
@@ -189,6 +241,12 @@ done
 ######################################################################
 if git diff --cached --name-only | grep -q "config.toml"; then
     echo "config.toml modified. Attempting to run ./scripts/subset-font.sh…"
+
+    # Check if ./scripts/subset-font.sh is available and exit early if not.
+    if ! command -v subset-font.sh &> /dev/null; then
+        echo "subset-font.sh command not found. Skipping this step."
+        exit 0
+    fi
 
     # Call the ./scripts/subset-font.sh script.
     ./scripts/subset-font.sh -c config.toml -f static/fonts/Inter4.woff2 -o static/
@@ -200,5 +258,4 @@ fi
 # Use `social-cards-zola.sh` to create/update the social media card for Markdown files.
 # See https://osc.garden/blog/automating-social-media-cards-zola/ for context.
 # Use parallel to create the social media cards in parallel and commit them.
-changed_md_files=$(echo "$all_changed_files" | grep '\.md$')
-if [ -z "$changed_md_files" ]; then echo "no md files has been changed."; else echo "$changed_md_files" | parallel -j 8 generate_and_commit_card; fi
+if [ -z "$modified_md_files" ]; then echo "no md files has been changed."; else echo "$modified_md_files" | parallel -j 8 generate_and_commit_card; fi
