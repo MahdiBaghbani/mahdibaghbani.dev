@@ -1,5 +1,4 @@
 +++
-path = "/"
 title = "Latest Posts"
 sort_by = "date"
 template = "section.html"
@@ -8,6 +7,9 @@ template = "section.html"
 header = {title = "Hello! I'm Mahdi :-)", img = "img/author-image.webp", img_alt = "Mahdi Baghbani, the blog's author" }
 section_path = "blog/_index.md"
 max_posts = 4
+projects_path = "projects/_index.md"
+max_projects = 3
+show_projects_first = false
 social_media_card = "social_cards/index.jpg"
 +++
 

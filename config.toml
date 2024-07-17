@@ -56,7 +56,7 @@ title = "~/مهدی-باغبانی"
 description = "مهندس دوآپس"
 generate_feeds = true
 taxonomies = [{name = "tags", feed = true}]
-build_search_index = true
+build_search_index = false
 
 [extra]
 # Check out the documentation (or the comments below) to learn how to customise tabi:

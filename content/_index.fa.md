@@ -1,5 +1,4 @@
 +++
-path = "/"
 title = "آخرین نوشتار‌ها"
 sort_by = "date"
 template = "section.html"
