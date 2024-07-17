@@ -5,7 +5,7 @@ author = "Mahdi Baghbani"
 generate_feed = true
 compile_sass = true
 minify_html = true
-build_search_index = false
+build_search_index = true
 
 # Select theme.
 theme = "erfan"
@@ -37,6 +37,8 @@ index_format = "elasticlunr_json"
 
 [markdown]
 highlight_code = true
+bottom_footnotes = true
+# To use a Zola built-in theme, CSP needs to allow unsafe-inline for style-src.
 highlight_theme = "css"
 smart_punctuation = true
 
@@ -56,7 +58,7 @@ generate_feed = true
 compile_sass = true
 minify_html = true
 taxonomies = [{name = "tags", feed = true}]
-build_search_index = false
+build_search_index = true
 
 [extra]
 # Check out the documentation (or the comments below) to learn how to customise tabi:
@@ -68,6 +70,10 @@ build_search_index = false
 # Example: If [search].index_format is "elasticlunr_javascript", set:
 # index_format = "elasticlunr_javascript"
 # index_format = ""
+
+# Use sans-serif font everywhere.
+# By default, the serif font is only used in articles.
+override_serif_with_sans = false
 
 # Enable JavaScript theme toggler to allow users to switch between dark/light mode.
 # If disabled, your site will only use the theme specified in the `default_theme` variable.
@@ -123,10 +129,30 @@ show_remote_source = true  # Defaults to true.
 # Can be set at page or section levels, following the hierarchy: page > section > config. See: https://welpo.github.io/tabi/blog/mastering-tabi-settings/#settings-hierarchy
 copy_button = true
 
+# Loads the necessary JavaScript (~400 bytes) to use the "Show source or path" shortcode: https://welpo.github.io/tabi/blog/shortcodes/#show-source-or-path
+# Can be set at page or section levels, following the hierarchy: page > section > config. See: https://welpo.github.io/tabi/blog/mastering-tabi-settings/#settings-hierarchy
+add_src_to_code_block = true
+
+# Show the author(s) of a page.
+# Can be set at page or section levels, following the hierarchy: page > section > config. See: https://welpo.github.io/tabi/blog/mastering-tabi-settings/#settings-hierarchy
+show_author = true
+
 # Show the reading time of a page.
 # Can be set at page or section levels, following the hierarchy: page > section > config. See: https://welpo.github.io/tabi/blog/mastering-tabi-settings/#settings-hierarchy
 show_reading_time = true
 
+# Show the date of a page below its title.
+# Can be set at page or section levels, following the hierarchy: page > section > config. See: https://welpo.github.io/tabi/blog/mastering-tabi-settings/#settings-hierarchy
+show_date = true
+
+# Determines how dates are displayed in the post listing (e.g. front page or /blog). Options:
+# "date" - Show only the original date of the post (default if unset).
+# "updated" - Show only the last updated date of the post. If there is no last updated date, it shows the original date.
+# "both" - Show both the original date and the last updated date.
+post_listing_date = "both"
+
+# DEPRECATED!
+# Use Zola's built-in `bottom_footnotes = true` in the [markdown] section instead. (Available since v0.19.0)
 # Adds backlinks to footnotes (loads ~500 bytes of JavaScripts).
 # Can be set at page or section levels, following the hierarchy: page > section > config. See: https://welpo.github.io/tabi/blog/mastering-tabi-settings/#settings-hierarchy
 footnote_backlinks = false
@@ -137,7 +163,7 @@ katex = false
 
 # Show links to previous and next articles at the bottom of posts.
 # Can be set at page or section levels, following the hierarchy: page > section > config. See: https://welpo.github.io/tabi/blog/mastering-tabi-settings/#settings-hierarchy
-show_previous_next_article_links = false
+show_previous_next_article_links = true
 
 # Invert order of the links to previous and next articles at the bottom of posts.
 # By default, next articles are on the left side of the page and previous articles are on the right side.
@@ -156,7 +182,7 @@ quick_navigation_buttons = false
 
 # Add a Table of Contents to posts, right below the title and metadata.
 # Can be set at page or section levels, following the hierarchy: page > section > config. See: https://welpo.github.io/tabi/blog/mastering-tabi-settings/#settings-hierarchy
-toc = false
+toc = true
 
 # Date format used when listing posts (main page, /blog section, tag posts list…)
 # Default is "6th July 2049" in English and "%d %B %Y" in other languages.
@@ -173,6 +199,11 @@ separator = "•••"
 # Default: tag_name – n post[s]
 # Compact: tag_name^n (superscript number)
 compact_tags = false
+
+# How tags are sorted in a Tags listing based on templates/tags/list.html.
+# "name" for alphabetical, "frequency" for descending count of posts.
+# Default: "name".
+tag_sorting = "name"
 
 # Invert the order of the site title and page title in the browser tab.
 # Example: true => "Blog • ~/tabi", false => "~/tabi • Blog"
@@ -220,7 +251,7 @@ socials = [
     { name = "github", url = "https://github.com/MahdiBaghbani", icon = "github" },
     { name = "mastodon", url = "https://mastodon.azadehafzar.io/@mahdibaghbani", icon = "mastodon" },
     { name = "x", url = "https://x.com/baghbani1", icon = "x" },
-    { name = "matrix", url = "https://matrix.to/#/@mahdi-baghbani:matrix.azadehafzar.io", icon = "matrix" },
+    { name = "matrix", url = "https://matrix.to/#/@mahdi-baghbani:azadehafzar.io", icon = "matrix" },
 ]
 
 # Extra menu to show on the footer, below socials section.
