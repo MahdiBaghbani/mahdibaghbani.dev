@@ -20,4 +20,3 @@ I writes about life, video games, movies, code, design, and more. I enjoy playin
 
 Welcome to my blog. ^_^ (perhaps it is also called my digital garden. 🌱)
 
-I'm also a nerd.

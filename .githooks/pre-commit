@@ -186,7 +186,7 @@ for file in $all_changed_files; do
 done
 
 # Get the modified .md to update the "updated" field in the front matter.
-modified_md_files=$(git diff --cached --name-only --diff-filter=M | grep -E '\.md$' | grep -v '_index.md$')
+modified_md_files=$(git diff --cached --name-only --diff-filter=M | grep -E '\.md$')
 
 # Loop through each modified .md file.
 for file in $modified_md_files; do
