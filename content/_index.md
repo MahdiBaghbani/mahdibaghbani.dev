@@ -10,7 +10,7 @@ max_posts = 4
 projects_path = "projects/_index.md"
 max_projects = 3
 show_projects_first = false
-social_media_card = "social_cards/index.jpg"
+social_media_card = "img/social_cards/index.webp"
 +++
 
 I'm a software engineer drawn to building products that positively impact our lives and the planet.
@@ -19,3 +19,5 @@ I develop free and open-source software by day and play [League of Legends](http
 I writes about life, video games, movies, code, design, and more. I enjoy playing chess, cafe hopping, programming, stargazing, and reading.
 
 Welcome to my blog. ^_^ (perhaps it is also called my digital garden. 🌱)
+
+I'm also a nerd.
