@@ -1,0 +1,15 @@
+.git
+.idea
+.github
+.DS_Store
+.gitignore
+.gitmodules
+.dockerignore
+.gitlab-ci.yml
+
+public
+scripts
+
+README.md
+Dockerfile
+docker-compose.yaml

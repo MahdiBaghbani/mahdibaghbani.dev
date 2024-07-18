@@ -1,0 +1,26 @@
+networks:
+  traefik-net:
+    external: true
+
+services:
+  website:
+    image: mahdibaghbani-dev:custom
+    container_name: "mahdibaghbani-dev"
+    restart: "unless-stopped"
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      traefik-net:
+        ipv4_address: 172.16.4.2
+    environment:
+      SERVER_NAME: "mahdibaghbani.dev"
+    volumes:
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-net"
+      - "traefik.http.routers.mahdibaghbani-nginx.entrypoints=websecure"
+      - "traefik.http.routers.mahdibaghbani-nginx.rule=Host(`mahdibaghbani.dev`, `www.mahdibaghbani.dev`)"
+      - "traefik.http.routers.mahdibaghbani-nginx.service=mahdibaghbani-nginx"
+      - "traefik.http.services.mahdibaghbani-nginx.loadbalancer.server.port=80"
