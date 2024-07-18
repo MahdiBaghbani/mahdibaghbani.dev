@@ -19,6 +19,22 @@
 # - a config.toml and theme.toml with different amounts of lines in [extra]     #
 #################################################################################
 
+
+# find this scripts location.
+SOURCE=${BASH_SOURCE[0]}
+while [ -L "${SOURCE}" ]; do # resolve "${SOURCE}" until the file is no longer a symlink.
+  DIR=$( cd -P "$( dirname "${SOURCE}" )" >/dev/null 2>&1 && pwd )
+  SOURCE=$(readlink "${SOURCE}")
+   # if "${SOURCE}" was a relative symlink, we need to resolve it relative to the path where the symlink file was located.
+  [[ "${SOURCE}" != /* ]] && SOURCE="${DIR}/${SOURCE}"
+done
+DIR=$( cd -P "$( dirname "${SOURCE}" )" >/dev/null 2>&1 && pwd )
+
+cd "${DIR}/.." || exit
+
+ENV_ROOT=$(pwd)
+export ENV_ROOT=${ENV_ROOT}
+
 # Function to exit the script with an error message.
 function error_exit() {
     echo "ERROR: $1" >&2
@@ -29,19 +45,19 @@ function error_exit() {
 function extract_date() {
     local file="$1"
     local field="$2"
-    grep -m 1 "^$field =" "$file" | sed -e "s/$field = //" -e 's/ *$//'
+    grep -m 1 "^$field =" "${file}" | sed -e "s/$field = //" -e 's/ *$//'
 }
 
 # Function to check if the .md file is a draft.
 function is_draft() {
     local file="$1"
-    awk '/^\+\+\+$/,/^\+\+\+$/ { if(/draft = true/) exit 0 } END { exit 1 }' "$file"
+    awk '/^\+\+\+$/,/^\+\+\+$/ { if(/draft = true/) exit 0 } END { exit 1 }' "${file}"
 }
 
 # Check if the file contains "TODO".
 function contains_todo() {
     local file="$1"
-    grep -q "TODO" "$file"
+    grep -q "TODO" "${file}"
 }
 
 # Check for changes outside of the front matter.
@@ -50,7 +66,7 @@ function has_body_changes() {
     local in_front_matter=1
     local triple_plus_count=0
 
-    diff_output=$(git diff --unified=999 --cached --output-indicator-new='%' --output-indicator-old='&' "$file")
+    diff_output=$(git diff --unified=999 --cached --output-indicator-new='%' --output-indicator-old='&' "${file}")
 
     while read -r line; do
         if [[ "$line" =~ ^\+\+\+$ ]]; then
@@ -70,8 +86,13 @@ function has_body_changes() {
 # Function to update the social media card for a post or section.
 function generate_and_commit_card {
     local file=$1
-    social_media_card=$(./scripts/social-cards-zola.sh -o static/img/social_cards -b http://127.0.0.1:1111 -u -p -i "$file") || {
-        echo "Failed to update social media card for $file"
+    local cleaned=$(dirname ${file#"content"})
+    local output_path="static/img/social_cards$cleaned"
+
+    mkdir -p "${output_path}"
+ 
+    social_media_card=$("${ENV_ROOT}/scripts/social-cards.sh" -o "${output_path}" -b http://127.0.0.1:1111 -u -p -i "${file}") || {
+        echo "Failed to update social media card for ${file}"
         exit 1
     }
 
@@ -80,8 +101,8 @@ function generate_and_commit_card {
         exit 1
     }
 
-    git add "$file" || {
-        echo "Failed to add $file"
+    git add "${file}" || {
+        echo "Failed to add ${file}"
         exit 1
     }
 }
@@ -105,13 +126,13 @@ function is_minified() {
     fi
 
     # Original file size.
-    local original_size=$(wc -c < "$file")
+    local original_size=$(wc -c < "${file}")
 
     # File size after compression with terser.
-    local terser_size=$(terser --compress --mangle -- "$file" | wc -c)
+    local terser_size=$(terser --compress --mangle -- "${file}" | wc -c)
 
     # File size after compression with uglifyjs.
-    local uglifyjs_size=$(uglifyjs --compress --mangle -- "$file" | wc -c)
+    local uglifyjs_size=$(uglifyjs --compress --mangle -- "${file}" | wc -c)
 
     # Check if the file is already as small as or smaller than both minified versions.
     if (( original_size <= terser_size && original_size <= uglifyjs_size )); then
@@ -120,9 +141,9 @@ function is_minified() {
 
     # If the file isn't as small as it can be, suggest the better compressor in the error message
     if (( terser_size < uglifyjs_size )); then
-        error_exit "Minified JS file $file isn't as small as it can be! Try using terser for better compression."
+        error_exit "Minified JS file ${file} isn't as small as it can be! Try using terser for better compression."
     else
-        error_exit "Minified JS file $file isn't as small as it can be! Try using uglifyjs for better compression."
+        error_exit "Minified JS file ${file} isn't as small as it can be! Try using uglifyjs for better compression."
     fi
 }
 
@@ -154,34 +175,34 @@ all_changed_files=$(git diff --cached --name-only --diff-filter=AM)
 script_name=$(basename "$0")
 # Loop through all newly added or modified files.
 for file in $all_changed_files; do
-    file_name=$(basename "$file")
+    file_name=$(basename "${file}")
 
     # Ignore this script and the changelog.
-    if [[ "$file_name" == "$script_name" ]] || [[ "$file_name" == "CHANGELOG.md" ]]; then
+    if [[ "${file}_name" == "$script_name" ]] || [[ "${file}_name" == "CHANGELOG.md" ]]; then
         continue
     fi
 
     # If the file is a PNG and png_compressor is set, compress it and add it to the commit.
-    if [[ "$file" == *.png ]] && [[ -n "$png_compressor" ]]; then
-        $png_compressor "$file" || error_exit "Failed to compress PNG file $file"
-        git add --force "$file" || error_exit "Failed to add compressed PNG file $file"
+    if [[ "${file}" == *.png ]] && [[ -n "$png_compressor" ]]; then
+        $png_compressor "${file}" || error_exit "Failed to compress PNG file ${file}"
+        git add --force "${file}" || error_exit "Failed to add compressed PNG file ${file}"
         continue
     fi
 
     # If the file contains "TODO", abort the commit.
-    if contains_todo "$file"; then
-        error_exit "File $file contains TODO! Remove or complete the TODO before committing."
+    if contains_todo "${file}"; then
+        error_exit "File ${file} contains TODO! Remove or complete the TODO before committing."
     fi
 
     # If the file is a JS file and it doesn't have a minified version, abort the commit.
-    if [[ "$file" == *.js ]] && [[ "$file" != *.min.js ]] && ! has_minified_version "$file"; then
-        error_exit "JS file $file doesn't have a minified version!"
+    if [[ "${file}" == *.js ]] && [[ "${file}" != *.min.js ]] && ! has_minified_version "${file}"; then
+        error_exit "JS file ${file} doesn't have a minified version!"
     fi
 
     # If the file is a minified JS file and it isn't as small as it can be, abort the commit.
     # Error message shows which minifier is best for the file.
-    if [[ "$file" == *.min.js ]]; then
-        is_minified "$file"
+    if [[ "${file}" == *.min.js ]]; then
+        is_minified "${file}"
     fi
 done
 
@@ -190,23 +211,23 @@ modified_md_files=$(git diff --cached --name-only --diff-filter=M | grep -E '\.m
 
 # Loop through each modified .md file.
 for file in $modified_md_files; do
-echo $file
+echo ${file}
     # If the file is an .md file and it's a draft, abort the commit.
-    if is_draft "$file"; then
-        error_exit "Draft file $file is being committed!"
+    if is_draft "${file}"; then
+        error_exit "Draft file ${file} is being committed!"
     fi
 
     # If changes are only in the front matter, skip the file.
-    if ! has_body_changes "$file"; then
+    if ! has_body_changes "${file}"; then
         continue
     fi
 
     # Modify the "updated" date, if necessary.
     # Get the last modified date from the filesystem.
-    last_modified_date=$(date -r "$file" +'%Y-%m-%d')
+    last_modified_date=$(date -r "${file}" +'%Y-%m-%d')
 
     # Extract the "date" field from the front matter.
-    date_value=$(extract_date "$file" "date")
+    date_value=$(extract_date "${file}" "date")
 
     # Skip the file if the last modified date is the same as the "date" field.
     if [[ "$last_modified_date" == "$date_value" ]]; then
@@ -223,15 +244,15 @@ echo $file
         }
         if (/^updated =/ && !first) gsub(/[^ ]*$/, date_line, $2);
         print;
-    }' "$file" > "${file}.tmp"
+    }' "${file}" > "${file}.tmp"
     then
-        error_exit "Failed to process $file with AWK"
+        error_exit "Failed to process ${file} with AWK"
     fi
 
-    mv "${file}.tmp" "$file" || error_exit "Failed to overwrite $file with updated content"
+    mv "${file}.tmp" "${file}" || error_exit "Failed to overwrite ${file} with updated content"
 
     # Stage the changes.
-    git add "$file"
+    git add "${file}"
 
 done
 
