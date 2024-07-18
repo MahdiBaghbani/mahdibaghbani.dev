@@ -258,4 +258,9 @@ fi
 # Use `social-cards-zola.sh` to create/update the social media card for Markdown files.
 # See https://osc.garden/blog/automating-social-media-cards-zola/ for context.
 # Use parallel to create the social media cards in parallel and commit them.
-if [ -z "$modified_md_files" ]; then echo "no md files has been changed."; else echo "$modified_md_files" | parallel -j 8 generate_and_commit_card; fi
+if [ -z "$modified_md_files" ]; 
+    then
+        echo "no md files has been changed."; 
+    else
+        echo "$modified_md_files" | parallel -j 8 generate_and_commit_card; 
+fi

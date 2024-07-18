@@ -10,4 +10,4 @@ max_posts = 4
 social_media_card = "img/social_cards/fa.webp"
 +++
 
-فعلا خبری نیست! شاید در آنیده بشه
+فعلا خبری نیست! شاید در آینده بشه
