@@ -8,7 +8,6 @@
 .gitlab-ci.yml
 
 public
-docker
 scripts
 
 README.md
