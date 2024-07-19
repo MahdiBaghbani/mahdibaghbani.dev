@@ -14,7 +14,7 @@ FROM alpine:3.20 AS runner
 
 # keys for oci taken from:
 # https://github.com/opencontainers/image-spec/blob/main/annotations.md#pre-defined-annotation-keys
-LABEL org.opencontainers.image.licenses=MIT
+LABEL org.opencontainers.image.licenses=AGPL-3.0-only
 LABEL org.opencontainers.image.title="Mahdi Baghbani goatcounter Image"
 LABEL org.opencontainers.image.source="https://github.com/MahdiBaghbani/mahdibaghbani.dev"
 LABEL org.opencontainers.image.authors="Mohammad Mahdi Baghbani Pourvahid"
