@@ -27,11 +27,11 @@ jobs:
       matrix:
         image: [ 
           {
-            tag: nginx,
+            name: nginx,
             path: ./docker/dockerfiles/site.dockerfile
           },
           {
-            tag: goatcounter,
+            name: goatcounter,
             path: ./docker/dockerfiles/goatcounter.dockerfile
           }
         ]
@@ -69,9 +69,10 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ github.repository }}
+          images: ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.image.name }}
           tags: |
-            type=raw,value=${{ matrix.image.tag }}
+            # set latest tag for master branch
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
 
       - name: Set up QEMU.
         uses: docker/setup-qemu-action@v3
@@ -94,13 +95,3 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-      
-      # This step generates an artifact attestation for the image, which is an unforgeable statement about where
-      # and how it was built. It increases supply chain security for people who consume the image. For more 
-      # information, see "[AUTOTITLE](/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds)." 
-      - name: Generate artifact attestation.
-        uses: actions/attest-build-provenance@v1
-        with:
-          subject-name: ${{ env.REGISTRY }}/${{ github.repository }}
-          subject-digest: ${{ steps.push.outputs.digest }}
-          push-to-registry: true
