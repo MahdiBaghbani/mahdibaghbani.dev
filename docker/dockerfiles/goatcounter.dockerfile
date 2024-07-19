@@ -20,9 +20,9 @@ LABEL org.opencontainers.image.source="https://github.com/MahdiBaghbani/mahdibag
 LABEL org.opencontainers.image.authors="Mohammad Mahdi Baghbani Pourvahid"
 
 # environment variables.
-ENV GOATCOUNTER_LISTEN "'0.0.0.0:80'"
-ENV GOATCOUNTER_DB "sqlite:///goatcounter/db/goatcounter.sqlite3?_busy_timeout=200&_journal_mode=wal&cache=shared"
-ENV GOATCOUNTER_SMTP ""
+ENV GOATCOUNTER_LISTEN="'0.0.0.0:80'"
+ENV GOATCOUNTER_DB="sqlite:///goatcounter/db/goatcounter.sqlite3?_busy_timeout=200&_journal_mode=wal&cache=shared"
+ENV GOATCOUNTER_SMTP=""
 
 WORKDIR /goatcounter
 
