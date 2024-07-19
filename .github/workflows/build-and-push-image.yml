@@ -70,6 +70,8 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository }}
+          tags: |
+            type=raw,value=${{ matrix.image.tag }}
 
       - name: Set up QEMU.
         uses: docker/setup-qemu-action@v3
@@ -90,7 +92,7 @@ jobs:
           context: .
           file: ${{ matrix.image.path }}
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ env.REGISTRY }}/${{ github.repository }}:${{ matrix.image.tag }}
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
       
       # This step generates an artifact attestation for the image, which is an unforgeable statement about where
