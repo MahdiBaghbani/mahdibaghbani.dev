@@ -1,13 +1,14 @@
 FROM golang:1.22.5-alpine3.20 AS builder
 
-ARG REPO_GOATCOUNTER=https://github.com/zgoat/goatcounter.git
-ARG BRANCH_BRANCH=v2.5.0
+ARG REPO_GOATCOUNTER=https://github.com/zgoat/goatcounter
+ARG BRANCH_BRANCH=release-2.5
+ARG CGO_CFLAGS="-D_LARGEFILE64_SOURCE"
 
 RUN apk add --update --no-cache git build-base
 
 RUN git clone --depth 1 --branch ${BRANCH_BRANCH} ${REPO_GOATCOUNTER}
 
-RUN cd goatcounter && go build ./cmd/goatcounter
+RUN cd goatcounter && go build -tags osusergo,netgo,sqlite_omit_load_extension -ldflags="-X zgo.at/goatcounter/v2.Version=$(git log -n1 --format='%h_%cI') -extldflags=-static" ./cmd/goatcounter
 
 FROM alpine:3.20 AS runner
 
