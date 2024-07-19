@@ -5,6 +5,11 @@ on:
   push:
     branches: 
       - "master"
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - 'master'
 
   # Allows you to run this workflow manually from the Actions tab.
   workflow_dispatch:
@@ -22,11 +27,11 @@ jobs:
       matrix:
         image: [ 
           {
-            name: mahdibaghbani-site-nginx,
+            tag: nginx,
             path: ./docker/dockerfiles/site.dockerfile
           },
           {
-            name: mahdibaghbani-site-counter,
+            tag: goatcounter,
             path: ./docker/dockerfiles/goatcounter.dockerfile
           }
         ]
@@ -49,6 +54,7 @@ jobs:
       # the account and password that will publish the packages. Once published, the packages are
       # scoped to the account defined here.
       - name: Log in to the Container registry.
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -63,7 +69,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.image.name }}
+          images: ${{ env.REGISTRY }}/${{ github.repository }}
+          tags: |
+            type=raw,priority=100,enable=${{ github.ref == format('refs/heads/{0}', 'master') }},value=${{ matrix.image.tag }}
 
       - name: Set up QEMU.
         uses: docker/setup-qemu-action@v3
@@ -83,7 +91,7 @@ jobs:
         with:
           context: .
           file: ${{ matrix.image.path }}
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
       
@@ -93,6 +101,6 @@ jobs:
       - name: Generate artifact attestation.
         uses: actions/attest-build-provenance@v1
         with:
-          subject-name: ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.image.name }}
+          subject-name: ${{ env.REGISTRY }}/${{ github.repository }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
