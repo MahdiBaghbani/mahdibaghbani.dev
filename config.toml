@@ -303,4 +303,4 @@ service = "goatcounter"
 # For Umami: Base URL like "https://umami.example.com"
 # For Plausible: Base URL like "https://plausible.example.com"
 # Leave this field empty if you're using the service's default hosting.
-self_hosted_url = "https://mahdibaghbani.dev"
+self_hosted_url = "https://stats.mahdibaghbani.dev"
