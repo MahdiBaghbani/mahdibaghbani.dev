@@ -34,10 +34,8 @@ services:
     networks:
       traefik-net:
         ipv4_address: 172.16.4.3
-    environment:
-      GOATCOUNTER_DOMAIN: stats.mahdibaghbani.dev
-      GOATCOUNTER_EMAIL: goatcounter@azadehafzar.io
-      GOATCOUNTER_PASSWORD: pa55w0rdfewq215rfrZerj235<s3WZYVpeB52erte8e@a_DI9E8421aQ
+    env_file:
+      - .env
     volumes:
       - "/etc/timezone:/etc/timezone:ro"
       - "/etc/localtime:/etc/localtime:ro"
