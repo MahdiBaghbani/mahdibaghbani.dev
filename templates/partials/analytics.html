@@ -8,7 +8,7 @@
     <script async
     {% if self_hosted_url %}
         data-goatcounter="{{ self_hosted_url ~ '/count' }}"
-        src="{{ self_hosted_url ~ '/count.min.js' }}"
+        src="{{ config.base_url ~ '/count.min.js' }}"
     {% else %}
         data-goatcounter="https://{{ analytics_id }}.goatcounter.com/count"
         src="https://gc.zgo.at/count.js"
