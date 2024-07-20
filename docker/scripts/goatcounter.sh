@@ -15,4 +15,4 @@ if [ -n "$GOATCOUNTER_DEBUG" ]; then
   OPTS="${OPTS} -debug all"
 fi
 
-goatcounter serve ${OPTS}
+goatcounter serve -automigrate ${OPTS}
