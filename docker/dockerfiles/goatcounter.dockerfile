@@ -1,4 +1,4 @@
-FROM golang:1.22.5-alpine3.20 AS builder
+FROM golang:1.23.4-alpine3.21@sha256:6c5c9590f169f77c8046e45c611d3b28fe477789acd8d3762d23d4744de69812 AS builder
 
 ARG REPO_GOATCOUNTER=https://github.com/zgoat/goatcounter
 ARG BRANCH_BRANCH=release-2.5
@@ -10,7 +10,7 @@ RUN git clone --depth 1 --branch ${BRANCH_BRANCH} ${REPO_GOATCOUNTER}
 
 RUN cd goatcounter && go build -tags osusergo,netgo,sqlite_omit_load_extension -ldflags="-X zgo.at/goatcounter/v2.Version=$(git log -n1 --format='%h_%cI') -extldflags=-static" ./cmd/goatcounter
 
-FROM alpine:3.20 AS runner
+FROM alpine:3.21.0@sha256:21dc6063fd678b478f57c0e13f47560d0ea4eeba26dfc947b2a4f81f686b9f45 AS runner
 
 # keys for oci taken from:
 # https://github.com/opencontainers/image-spec/blob/main/annotations.md#pre-defined-annotation-keys

@@ -1,4 +1,4 @@
-FROM ghcr.io/getzola/zola:v0.19.1 AS zola
+FROM ghcr.io/getzola/zola:v0.19.2 AS zola
 
 COPY .                                              /project
 WORKDIR                                             /project
@@ -6,7 +6,7 @@ WORKDIR                                             /project
 # build static website with zola.
 RUN ["zola", "build"]
 
-FROM nginx:1.27.0-alpine3.19-slim
+FROM nginx:1.27.3-alpine3.20-slim@sha256:e9d4fe3e963d75580048fa9a860c514312c328f536595022e597d1c4729f073a
 
 # keys for oci taken from:
 # https://github.com/opencontainers/image-spec/blob/main/annotations.md#pre-defined-annotation-keys
