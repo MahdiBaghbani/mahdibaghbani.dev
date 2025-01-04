@@ -7,5 +7,5 @@ insert_anchor_links = "left"
 
 [extra]
 show_previous_next_article_links = true
-social_media_card = "img/social_cards/blog/blog.webp"
+social_media_card = "images/social_cards/blog/blog.webp"
 +++

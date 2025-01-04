@@ -87,7 +87,7 @@ function has_body_changes() {
 function generate_and_commit_card {
     local file=$1
     local cleaned=$(dirname ${file#"content"})
-    local output_path="static/img/social_cards$cleaned"
+    local output_path="static/images/social_cards$cleaned"
 
     mkdir -p "${output_path}"
  

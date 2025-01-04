@@ -25,7 +25,7 @@ function help_function(){
     echo "  -u, --update-front-matter   Update or add the 'social_media_card' key in the front matter of the Markdown file."
     echo
     echo "Examples:"
-    echo "  social-cards-zola --base_url https://example.com --input content/blog/my_post.md --output_path static/img/social_cards"
+    echo "  social-cards-zola --base_url https://example.com --input content/blog/my_post.md --output_path static/images/social_cards"
     echo "  social-cards-zola -u -b http://127.0.0.1:1025 -i content/archive/_index.es.md -o static/img"
     exit 0
 }
