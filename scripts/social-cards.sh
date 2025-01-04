@@ -109,7 +109,7 @@ function fetch_status() {
 function capture_screenshot() {
     temp_file=$(mktemp /tmp/social-zola.XXXXXX)
     trap 'rm -f "$temp_file"' EXIT
-    shot-scraper --silent "${base_url}/${post_url}" -w 700 -h 400 --retina --quality 60 -o "$temp_file"
+    shot-scraper --silent "${base_url}/${post_url}" -w 700 -h 400 --retina --quality 80 -o "$temp_file"
     cwebp -sharp_yuv -pass 10 -m 6 -mt -quiet "$temp_file" -o "$temp_file"
 }
 
